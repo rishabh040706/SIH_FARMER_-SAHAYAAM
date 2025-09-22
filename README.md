@@ -20,6 +20,6 @@ The project is to create an farmer query and support system using ai and helping
 ## Project Links
 
 - **SIH Presentation:** https://github.com/rishabh040706/SIH_FARMER_-SAHAYAAM/commit/1736a3d59646510429a9a540deaa4a1804c4523a
-- **Video Demonstration:** [Watch Video](UNLISTED YOUTUBE LINK)
+- **Video Demonstration:** https://youtu.be/IXBGW1MOEUU
 - **Source Code:** https://github.com/rishabh040706/SIH_FARMER_-SAHAYAAM
 
