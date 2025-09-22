@@ -1,0 +1,96 @@
+pip install requests googletrans==4.0.0-rc1 geocoder
+
+import requests
+from googletrans import Translator
+import geocoder
+from google.colab import files
+
+translator = Translator()
+
+# ------------------- Location & Soil / Groundwater -------------------
+
+def get_location():
+    g = geocoder.ip('me')
+    return g.latlng  # [lat, lon]
+
+def get_soil_data(lat, lon):
+    # Replace with actual API call to fetch soil data
+    return {'ph': 6.5, 'moisture': 20}
+
+def get_weather_data(lat, lon):
+    url = f'https://api.weatherapi.com/v1/current.json?key=YOUR_API_KEY&q={lat},{lon}'
+    response = requests.get(url)
+    data = response.json()
+    return data['current']['temp_c'], data['current']['humidity']
+
+def get_mandi_prices():
+    url = 'https://api.agmarknet.gov.in/api/v1/marketprices'
+    response = requests.get(url)
+    return response.json()
+
+def detect_disease(image_path):
+    # Placeholder for disease detection logic
+    return "Detected disease: Leaf spot. Recommended treatment: Fungicide application."
+
+# ------------------- Core Functions -------------------
+
+def recommend_crop(soil_ph, temp, humidity):
+    if soil_ph < 6.0:
+        crop = "Rice"
+    elif soil_ph > 7.5:
+        crop = "Wheat"
+    else:
+        crop = "Maize"
+
+    if temp > 35:
+        crop += " (Heat-tolerant)"
+    if humidity > 80:
+        crop += " (Suitable for high humidity)"
+
+    return crop
+
+# ------------------- Main Chatbot -------------------
+
+def main():
+    lat, lon = get_location()
+    soil_data = get_soil_data(lat, lon)
+    temp, humidity = get_weather_data(lat, lon)
+
+    print(f"Location: {lat}, {lon}")
+    print(f"Soil pH: {soil_data['ph']}, Moisture: {soil_data['moisture']}%")
+    print(f"Weather - Temp: {temp}°C, Humidity: {humidity}%")
+
+    lang = input("Choose language (en/ml): ").lower()
+    greeting = "Welcome, farmer!" if lang == "en" else "സ്വാഗതം, കർഷകൻ!"
+    print(greeting)
+
+    while True:
+        query = input("\nEnter your problem (type 'exit' to quit): ").lower()
+        if query in ["exit", "quit"]:
+            goodbye = "Goodbye!" if lang == "en" else "വിട!"
+            print(goodbye)
+            break
+
+        if "crop" in query or "recommend" in query:
+            crop = recommend_crop(soil_data['ph'], temp, humidity)
+            response = f"Recommended crop: {crop}"
+        elif "price" in query or "mandi" in query:
+            prices = get_mandi_prices()
+            response = f"Current mandi prices: {prices}"
+        elif "disease" in query or "leaf" in query:
+            print("Upload image for disease detection.")
+            uploaded = files.upload()
+            image_path = list(uploaded.keys())[0]
+            response = detect_disease(image_path)
+        elif "groundwater" in query or "water" in query:
+            response = "Groundwater level data is not available."
+        else:
+            response = "Sorry, I could not understand your query."
+
+        if lang == "ml":
+            response = translator.translate(response, dest="ml").text
+
+        print(response)
+
+if __name__ == "__main__":
+    main()
